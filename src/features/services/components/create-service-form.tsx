@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { createService } from "../services/service.service";
+import { ApiError } from "@/core/types/api.types";
 
 interface CreateServiceFormProps {
     onSuccess: () => void;
@@ -11,22 +13,31 @@ export function CreateServiceForm({ onSuccess }: CreateServiceFormProps) {
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
         setIsSubmitting(true);
 
         const formData = new FormData(event.currentTarget);
+        const scheduleAtValue = String(formData.get('scheduledAt') ?? '')
 
         const payload = {
             clientId: String(formData.get("clientId") ?? ""),
             technicianIds: [String(formData.get("technicianId") ?? "")],
-            scheduledAt: String(formData.get("scheduledAt") ?? ""),
+            scheduledAt: new Date(scheduleAtValue).toISOString(),
             servicePrice: Number(formData.get("servicePrice") ?? 0),
             notes: String(formData.get("notes") ?? "") || undefined,
-            certificateExpiresAt:
-                String(formData.get("certificateExpiresAt") ?? "") || undefined,
         };
 
-        console.log("Create service payload:", payload);
+        try {
+            await createService(payload)
+            onSuccess()
+        } catch (error) {
+            if (error instanceof ApiError) {
+                console.error(error.message)
+                return 
+            }
+            console.error('Unepected Create service Error')
+        } finally {
+            setIsSubmitting(false)
+        }
 
         setIsSubmitting(false);
         onSuccess();
@@ -66,12 +77,6 @@ export function CreateServiceForm({ onSuccess }: CreateServiceFormProps) {
                 min="1"
                 required
                 placeholder="Precio del servicio"
-                className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm text-foreground bg-white outline-none focus:border-primary transition-colors"
-            />
-
-            <input
-                name="certificateExpiresAt"
-                type="datetime-local"
                 className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm text-foreground bg-white outline-none focus:border-primary transition-colors"
             />
 

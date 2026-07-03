@@ -1,6 +1,8 @@
 "use client";
 
+import { ApiError } from "@/core/types/api.types";
 import { useState } from "react";
+import { createTechnician } from "../services/technician.service";
 
 interface CreateTechnicianFormProps {
     onSuccess: () => void;
@@ -26,8 +28,19 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
             role: "TECHNICIAN",
         };
 
-        console.log("Create technician payload:", payload);
-
+        try {
+            await createTechnician(payload);
+            onSuccess();
+        } catch (error) {
+            if (error instanceof ApiError) {
+                console.error(error.message);
+                return;
+            }
+        
+            console.error("Unexpected create technician error");
+        } finally {
+            setIsSubmitting(false);
+        }
         setIsSubmitting(false);
         onSuccess();
     }

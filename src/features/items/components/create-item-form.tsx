@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { createItem } from "../services/item.service";
+import { ApiError } from "@/core/types/api.types";
 
 interface CreateItemFormProps {
     onSuccess: () => void;
@@ -32,8 +34,19 @@ export function CreateItemForm({ onSuccess }: CreateItemFormProps) {
             price: Number(formData.get("price") ?? 0),
         };
 
-        console.log("Create item payload:", payload);
-
+        try {
+            await createItem(payload);
+            onSuccess();
+        } catch (error) {
+            if (error instanceof ApiError) {
+                console.error(error.message);
+                return;
+            }
+        
+            console.error("Unexpected create item error");
+        } finally {
+            setIsSubmitting(false);
+        }
         setIsSubmitting(false);
         onSuccess();
     }

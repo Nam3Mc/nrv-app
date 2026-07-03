@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "../services/client.service";
+import { ApiError } from "@/core/types/api.types";
 
 interface CreateClientFormProps {
     onSuccess: () => void;
@@ -28,8 +30,19 @@ export function CreateClientForm({ onSuccess }: CreateClientFormProps) {
                 String(formData.get("contactLastName") ?? "") || undefined,
         };
 
-        console.log("Create client payload:", payload);
-
+        try {
+            await createClient(payload);
+            onSuccess();
+        } catch (error) {
+            if (error instanceof ApiError) {
+                console.error(error.message);
+                return;
+            }
+        
+            console.error("Unexpected create client error");
+        } finally {
+            setIsSubmitting(false);
+        }
         setIsSubmitting(false);
         onSuccess();
     }
