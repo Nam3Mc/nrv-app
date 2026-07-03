@@ -1,7 +1,7 @@
 import type { UserRole } from "@/core/types/user.types";
 
 export const APP_ROUTES = {
-    login: "/login",
+    login: "/",
     dashboard: "/dashboard",
     techPortal: "/tech-portal",
     completeService: "/completar-servicio",

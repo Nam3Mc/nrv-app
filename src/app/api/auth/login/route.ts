@@ -15,14 +15,14 @@ const loginSchema = z.object({
 })
 
 export async function POST(request:Request) {
+
     if (!request) {
         console.log('no request')
     }
-    console.log('received request')
+
     try {
         const body = await request.json()
         const loginData = loginSchema.parse(body)
-
         const backendResponse = await serverApiClient<BackendLoginResponse>(
             API_ROUTES.auth.login,
             {
@@ -31,9 +31,9 @@ export async function POST(request:Request) {
                 body: loginData,
             },
         )
-        
+
         const cookieStore = await cookies()
-        
+
         cookieStore.set(
             serverEnv.auth.tokenCookieName,
             backendResponse.accessToken,
@@ -45,7 +45,7 @@ export async function POST(request:Request) {
                 path: AUTH_COOKIE_PATH
             },
         )
-            
+
         cookieStore.set(
             serverEnv.auth.roleCookieName,
             backendResponse.user.role,
@@ -67,6 +67,7 @@ export async function POST(request:Request) {
         return NextResponse.json(responseBody, {
             status: 200,
         })
+
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json(
