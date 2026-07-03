@@ -8,7 +8,7 @@ interface CreateItemFormProps {
     onSuccess: () => void;
 }
 
-const measurementUnits = ["UNIT", "KG", "LITER", "GRAM", "MILLILITER"];
+const measurementUnits = ["UNIT", "KG", "LITER",];
 
 export function CreateItemForm({ onSuccess }: CreateItemFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);

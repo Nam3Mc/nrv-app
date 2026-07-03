@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createService } from "../services/service.service";
 import { ApiError } from "@/core/types/api.types";
+import { Technician } from "@/features/technicians/types/technician.types";
+import { Client } from "@/features/clients/types/client.types";
+import { getTechnicians } from "@/features/technicians/services/technician.service";
+import { getClients } from "@/features/clients/services/client.service";
 
 interface CreateServiceFormProps {
     onSuccess: () => void;
@@ -10,6 +14,18 @@ interface CreateServiceFormProps {
 
 export function CreateServiceForm({ onSuccess }: CreateServiceFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [technicians, setTechnicians] = useState<Technician[]>([])
+    const [clients, setClients] = useState<Client[]>([])
+
+    useEffect(() => {
+        async function loadFormData() {
+            const clients = await getClients()
+            const technicians = await getTechnicians()
+            setClients(clients)
+            setTechnicians(technicians)
+        }
+        loadFormData()
+    }, [])
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -45,24 +61,31 @@ export function CreateServiceForm({ onSuccess }: CreateServiceFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="rounded-xl border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
-                Este formulario necesita cargar clientes y técnicos reales desde el backend.
-                En el siguiente paso conectamos esos selects.
-            </div>
 
-            <input
+            <select 
                 name="clientId"
                 required
-                placeholder="Client ID"
-                className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm text-foreground bg-white outline-none focus:border-primary transition-colors"
-            />
+                className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm text-foreground bg-white outline-none focus:border-primary transition-colors cursor-pointer"
+            >
+                {clients.map((client) => (
+                    <option key={client.id} value={client.id} className="text-foreground">
+                        {client.companyName}
+                    </option>
+                ))}
+            </select>
 
-            <input
-                name="technicianId"
+            <select 
+                name="technicianId" 
                 required
-                placeholder="Technician ID"
-                className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm text-foreground bg-white outline-none focus:border-primary transition-colors"
-            />
+                className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm text-foreground bg-white outline-none focus:border-primary transition-colors cursor-pointer"
+            >
+
+                {technicians.map((technician) => (
+                    <option key={technician.id} value={technician.id} className="text-foreground">
+                        {technician.firstName} {technician.lastName}
+                    </option>
+                ))}
+            </select>
 
             <input
                 name="scheduledAt"

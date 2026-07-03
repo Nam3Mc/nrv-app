@@ -10,7 +10,7 @@ const quickActions = [
     {
         type: 'client' as const,
         label: 'Nuevo Cliente',
-        color: 'primary' as const,
+        color: 'accent' as const,
         icons: User,
     },
     {
@@ -22,7 +22,7 @@ const quickActions = [
     {
         type: 'item' as const,
         label: 'Nuevo Item',
-        color: 'muted' as const,
+        color: 'danger' as const,
         icons: Box,
     },
     {
