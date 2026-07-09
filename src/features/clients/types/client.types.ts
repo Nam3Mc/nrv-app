@@ -20,4 +20,5 @@ export interface Client {
     isActive?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    nextServiceDate?: string | null | undefined;
 }

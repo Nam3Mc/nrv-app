@@ -34,7 +34,7 @@ const quickActions = [
 ]
 
 
-export function QuickActionsCar() {
+export function QuickActionsCard() {
     const [selectedAction, setSelectedAction] = useState<QuickActionType | null>(null) 
 
     function closeModal() {

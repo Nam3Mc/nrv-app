@@ -25,3 +25,16 @@ export async function createTechnician(
         },
     );
 }
+
+export async function updateTechnician(
+    technicianId: string,
+    payload: Partial<CreateTechnicianRequest> & { isActive?: boolean },
+): Promise<Technician> {
+    return clientApiClient<Technician>(
+        INTERNAL_API_ROUTES.technicians.byId(technicianId),
+        {
+            method: "PATCH",
+            body: payload,
+        },
+    );
+}

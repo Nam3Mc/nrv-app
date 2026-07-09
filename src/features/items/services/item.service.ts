@@ -17,3 +17,14 @@ export async function createItem(payload: CreateItemRequest): Promise<Item> {
         body: payload,
     });
 }
+
+export async function updateItem( itemId: string, payload: Partial<CreateItemRequest> & { isActive?: boolean },
+): Promise<Item> {
+    return clientApiClient<Item>(
+        INTERNAL_API_ROUTES.items.byId(itemId),
+        {
+            method: "PATCH",
+            body: payload,
+        },
+    );
+}

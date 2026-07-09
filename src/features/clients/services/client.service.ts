@@ -19,3 +19,44 @@ export async function createClient(
         body: payload,
     });
 }
+
+export async function getClient( clientId: string): Promise<Client> {
+    return clientApiClient<Client>(INTERNAL_API_ROUTES.clients.byId(clientId), {
+        method: "GET"
+    })
+}
+
+export async function updateClient(
+    clientId: string,
+    payload: Partial<CreateClientRequest>
+): Promise<Client> {
+    return clientApiClient<Client>(
+        INTERNAL_API_ROUTES.clients.update(clientId),
+        {
+            method: "PATCH",
+            body: payload,
+        },
+    );
+}
+
+export async function deactivateClient(
+    clientId: string,
+): Promise<Client> {
+    return clientApiClient<Client>(
+        INTERNAL_API_ROUTES.clients.deactivate(clientId),
+        {
+            method: "PATCH",
+        },
+    );
+}
+
+export async function activateClient(
+    clientId: string,
+): Promise<Client> {
+    return clientApiClient<Client>(
+        INTERNAL_API_ROUTES.clients.activate(clientId),
+        {
+            method: "PATCH",
+        },
+    );
+}

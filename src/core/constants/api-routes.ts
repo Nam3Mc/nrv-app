@@ -7,7 +7,7 @@ export const API_ROUTES = {
     users: {
         base: '/user',
         getById: (userId: string) => `/user/${userId}`,
-        update: (userId: string) => `/user/${userId}`,
+        update: (userId: string) => `/user/${userId}/update`,
         activate: (userId: string) => `/user/${userId}/activate`,
         deactivate: (userId: string) => `/user/${userId}/deactivate`,
         updatePhoto: (userId: string) => `/user/${userId}/profile-photo`,
