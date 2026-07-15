@@ -29,6 +29,7 @@ export async function getClient( clientId: string): Promise<Client> {
 export async function updateClient(
     clientId: string,
     payload: Partial<CreateClientRequest>
+// ){
 ): Promise<Client> {
     return clientApiClient<Client>(
         INTERNAL_API_ROUTES.clients.update(clientId),

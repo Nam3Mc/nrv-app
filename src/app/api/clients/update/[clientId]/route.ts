@@ -17,13 +17,14 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     try {
         const { clientId } = await params;
+        const body = await request.json()
         const updatedClient = await serverApiClient<Client>(
-            API_ROUTES.clients.getById(clientId),
+            API_ROUTES.clients.update(clientId),
             {
-                method: "PATCH",
-            },
-        );
-
+                method: 'PATCH',
+                body,
+            }
+        )
         return NextResponse.json(updatedClient);
     } catch (error) {
         return routeErrorResponse(error);

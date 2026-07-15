@@ -16,7 +16,7 @@ export const API_ROUTES = {
     clients: {
         base: '/clients',
         getById: (clientId: string) => `/clients/${clientId}`,
-        update: (clientId: string) => `/clients/${clientId}`,
+        update: (clientId: string) => `/clients/${clientId}/update`,
         activate: (clientId: string) => `/clients/${clientId}/activate`,
         deactivate: (clientId: string) => `/clients/${clientId}/deactivate`,
     },

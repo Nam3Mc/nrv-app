@@ -24,6 +24,7 @@ import {
     updateTechnician,
 } from "@/features/technicians/services/technician.service";
 import type { Technician } from "@/features/technicians/types/technician.types";
+import { UpdateClientModal } from "./client-update-modal";
 
 type DashboardListKey = "clients" | "services" | "items" | "technicians";
 
@@ -51,6 +52,10 @@ export function DashboardBottomLists() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [errors, setErrors] = useState<DashboardListErrors>(defaultErrors);
+    
+    // Estado para el modal de edición de cliente
+    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     function setListError(key: DashboardListKey, message: string | null) {
         setErrors((currentErrors) => ({
@@ -130,18 +135,29 @@ export function DashboardBottomLists() {
         void loadDashboardLists();
     }, []);
 
+    const handleEditClient = (client: Client) => {
+        setSelectedClient(client);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedClient(null);
+    };
+
+    const handleClientUpdateSuccess = async () => {
+        await loadDashboardLists();
+        handleCloseModal();
+    };
+
     async function handleToggleClient(client: Client) {
         setListError("clients", null);
+    
         try {
-
-            const updatedClient = await getClient(client.id)
-            if ( !updatedClient.isActive) {
-                await activateClient(client.id)
-            } else {
-
-                await deactivateClient(client.id) 
-            }
-
+            const updatedClient = client.isActive
+                ? await deactivateClient(client.id)
+                : await activateClient(client.id);
+        
             setClients((currentClients) =>
                 currentClients.map((item) =>
                     item.id === updatedClient.id ? updatedClient : item,
@@ -230,135 +246,143 @@ export function DashboardBottomLists() {
     }
 
     return (
-        <section className="mt-6 space-y-5">
-            <DashboardEntitySection
-                title="Clientes"
-                count={clients.length}
-                items={clients}
-                isLoading={isLoading}
-                error={errors.clients}
-                searchPlaceholder="Buscar cliente..."
-                getId={(client) => client.id}
-                getSearchValue={(client) =>
-                    `${client.companyName} ${client.phone} ${
-                        client.email ?? ""
-                    } ${client.NIT ?? ""}`
-                }
-                renderTitle={(client) => client.companyName}
-                renderSubtitle={(client) => client.address}
-                renderMeta={(client) => client.phone}
-                getIsActive={(client) => Boolean(client.isActive)}
-                getToggleLabel={(client) =>
-                    client.isActive ? "Desactivar cliente" : "Activar cliente"
-                }
-                onToggleActive={handleToggleClient}
-                onEdit={(client) => {
-                    console.log("Edit client:", client);
-                }}
-            />
-
-            <DashboardEntitySection
-                title="Servicios"
-                count={services.length}
-                items={services}
-                isLoading={isLoading}
-                error={errors.services}
-                searchPlaceholder="Buscar servicio..."
-                getId={(service) => service.id}
-                getSearchValue={(service) =>
-                    `${service.client?.companyName ?? ""} ${service.status} ${
-                        service.notes ?? ""
-                    }`
-                }
-                renderTitle={(service) =>
-                    service.client?.companyName ?? "Servicio sin cliente"
-                }
-                renderSubtitle={(service) =>
-                    new Intl.DateTimeFormat("es-CO", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                    }).format(new Date(service.scheduledAt))
-                }
-                renderMeta={(service) =>
-                    `Precio: $${Number(service.servicePrice).toLocaleString(
-                        "es-CO",
-                    )}`
-                }
-                renderStatusLabel={(service) => service.status}
-                getIsActive={(service) => service.status !== "CANCELED"}
-                getToggleLabel={(service) => {
-                    if (service.status === "COMPLETED") {
-                        return "No se puede cancelar un servicio completado";
+        <>
+            <section className="mt-6 space-y-5">
+                <DashboardEntitySection
+                    title="Clientes"
+                    count={clients.length}
+                    items={clients}
+                    isLoading={isLoading}
+                    error={errors.clients}
+                    searchPlaceholder="Buscar cliente..."
+                    getId={(client) => client.id}
+                    getSearchValue={(client) =>
+                        `${client.companyName} ${client.phone} ${
+                            client.email ?? ""
+                        } ${client.NIT ?? ""}`
                     }
+                    renderTitle={(client) => client.companyName}
+                    renderSubtitle={(client) => client.address}
+                    renderMeta={(client) => client.phone}
+                    getIsActive={(client) => Boolean(client.isActive)}
+                    getToggleLabel={(client) =>
+                        client.isActive ? "Desactivar cliente" : "Activar cliente"
+                    }
+                    onToggleActive={handleToggleClient}
+                    onEdit={handleEditClient}
+                />
 
-                    return service.status === "CANCELED"
-                        ? "Reactivar servicio"
-                        : "Cancelar servicio";
-                }}
-                getToggleDisabled={(service) => service.status === "COMPLETED"}
-                onToggleActive={handleToggleServiceStatus}
-                onEdit={(service) => {
-                    console.log("Edit service:", service);
-                }}
-            />
+                <DashboardEntitySection
+                    title="Servicios"
+                    count={services.length}
+                    items={services}
+                    isLoading={isLoading}
+                    error={errors.services}
+                    searchPlaceholder="Buscar servicio..."
+                    getId={(service) => service.id}
+                    getSearchValue={(service) =>
+                        `${service.client?.companyName ?? ""} ${service.status} ${
+                            service.notes ?? ""
+                        }`
+                    }
+                    renderTitle={(service) =>
+                        service.client?.companyName ?? "Servicio sin cliente"
+                    }
+                    renderSubtitle={(service) =>
+                        new Intl.DateTimeFormat("es-CO", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                        }).format(new Date(service.scheduledAt))
+                    }
+                    renderMeta={(service) =>
+                        `Precio: $${Number(service.servicePrice).toLocaleString(
+                            "es-CO",
+                        )}`
+                    }
+                    renderStatusLabel={(service) => service.status}
+                    getIsActive={(service) => service.status !== "CANCELED"}
+                    getToggleLabel={(service) => {
+                        if (service.status === "COMPLETED") {
+                            return "No se puede cancelar un servicio completado";
+                        }
 
-            <DashboardEntitySection
-                title="Ítems"
-                count={items.length}
-                items={items}
-                isLoading={isLoading}
-                error={errors.items}
-                searchPlaceholder="Buscar ítem..."
-                getId={(item) => item.id}
-                getSearchValue={(item) =>
-                    `${item.name} ${item.lot} ${item.provider}`
-                }
-                renderTitle={(item) => item.name}
-                renderSubtitle={(item) => `${item.provider} · Lote ${item.lot}`}
-                renderMeta={(item) =>
-                    `Cantidad: ${item.quantity} · Precio: $${Number(
-                        item.price,
-                    ).toLocaleString("es-CO")}`
-                }
-                getIsActive={(item) => Boolean(item.isActive)}
-                getToggleLabel={(item) =>
-                    item.isActive ? "Desactivar ítem" : "Activar ítem"
-                }
-                onToggleActive={handleToggleItem}
-                onEdit={(item) => {
-                    console.log("Edit item:", item);
-                }}
-            />
+                        return service.status === "CANCELED"
+                            ? "Reactivar servicio"
+                            : "Cancelar servicio";
+                    }}
+                    getToggleDisabled={(service) => service.status === "COMPLETED"}
+                    onToggleActive={handleToggleServiceStatus}
+                    onEdit={(service) => {
+                        console.log("Edit service:", service);
+                    }}
+                />
 
-            <DashboardEntitySection
-                title="Técnicos"
-                count={technicians.length}
-                items={technicians}
-                isLoading={isLoading}
-                error={errors.technicians}
-                searchPlaceholder="Buscar técnico..."
-                getId={(technician) => technician.id}
-                getSearchValue={(technician) =>
-                    `${technician.firstName} ${technician.lastName} ${
-                        technician.email
-                    } ${technician.phone ?? ""}`
-                }
-                renderTitle={(technician) =>
-                    `${technician.firstName} ${technician.lastName}`
-                }
-                renderSubtitle={(technician) => technician.email}
-                renderMeta={(technician) => technician.phone ?? "Sin teléfono"}
-                getIsActive={(technician) => Boolean(technician.isActive)}
-                getToggleLabel={(technician) =>
-                    technician.isActive
-                        ? "Desactivar técnico"
-                        : "Activar técnico"
-                }
-                onToggleActive={handleToggleTechnician}
-                onEdit={(technician) => {
-                    console.log("Edit technician:", technician);
-                }}
-            />
-        </section>
+                <DashboardEntitySection
+                    title="Ítems"
+                    count={items.length}
+                    items={items}
+                    isLoading={isLoading}
+                    error={errors.items}
+                    searchPlaceholder="Buscar ítem..."
+                    getId={(item) => item.id}
+                    getSearchValue={(item) =>
+                        `${item.name} ${item.lot} ${item.provider}`
+                    }
+                    renderTitle={(item) => item.name}
+                    renderSubtitle={(item) => `${item.provider} · Lote ${item.lot}`}
+                    renderMeta={(item) =>
+                        `Cantidad: ${item.quantity} · Precio: $${Number(
+                            item.price,
+                        ).toLocaleString("es-CO")}`
+                    }
+                    getIsActive={(item) => Boolean(item.isActive)}
+                    getToggleLabel={(item) =>
+                        item.isActive ? "Desactivar ítem" : "Activar ítem"
+                    }
+                    onToggleActive={handleToggleItem}
+                    onEdit={(item) => {
+                        console.log("Edit item:", item);
+                    }}
+                />
+
+                <DashboardEntitySection
+                    title="Técnicos"
+                    count={technicians.length}
+                    items={technicians}
+                    isLoading={isLoading}
+                    error={errors.technicians}
+                    searchPlaceholder="Buscar técnico..."
+                    getId={(technician) => technician.id}
+                    getSearchValue={(technician) =>
+                        `${technician.firstName} ${technician.lastName} ${
+                            technician.email
+                        } ${technician.phone ?? ""}`
+                    }
+                    renderTitle={(technician) =>
+                        `${technician.firstName} ${technician.lastName}`
+                    }
+                    renderSubtitle={(technician) => technician.email}
+                    renderMeta={(technician) => technician.phone ?? "Sin teléfono"}
+                    getIsActive={(technician) => Boolean(technician.isActive)}
+                    getToggleLabel={(technician) =>
+                        technician.isActive
+                            ? "Desactivar técnico"
+                            : "Activar técnico"
+                    }
+                    onToggleActive={handleToggleTechnician}
+                    onEdit={(technician) => {
+                        console.log("Edit technician:", technician);
+                    }}
+                />
+            </section>
+
+            {isModalOpen && selectedClient && (
+                <UpdateClientModal
+                    client={selectedClient}
+                    onClose={handleCloseModal}
+                    onSuccess={handleClientUpdateSuccess}
+                />
+            )}
+        </>
     );
 }
