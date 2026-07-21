@@ -4,6 +4,10 @@ import type {
     CreateTechnicianRequest,
     Technician,
 } from "@/features/technicians/types/technician.types";
+import type {
+    TechnicianService,
+    TechnicianStatistics,
+} from "@/features/technicians/types/technician-service.types";
 
 export async function getTechnicians(): Promise<Technician[]> {
     return clientApiClient<Technician[]>(
@@ -35,6 +39,54 @@ export async function updateTechnician(
         {
             method: "PATCH",
             body: payload,
+        },
+    );
+}
+
+export async function getAssignedServices(): Promise<TechnicianService[]> {
+    return clientApiClient<TechnicianService[]>(
+        INTERNAL_API_ROUTES.technicians.assignedServices,
+        {
+            method: "GET",
+        },
+    );
+}
+
+export async function getTechnicianStatistics(): Promise<TechnicianStatistics> {
+    return clientApiClient<TechnicianStatistics>(
+        INTERNAL_API_ROUTES.technicians.statistics,
+        {
+            method: "GET",
+        },
+    );
+}
+
+export async function startService(
+    serviceId: string,
+    photos: File[],
+): Promise<TechnicianService> {
+    const formData = new FormData();
+
+    photos.forEach((photo) => {
+        formData.append("photos", photo);
+    });
+
+    return clientApiClient<TechnicianService>(
+        INTERNAL_API_ROUTES.services.startService(serviceId),
+        {
+            method: "PATCH",
+            body: formData,
+        },
+    );
+}
+
+export async function completeService(
+    serviceId: string,
+): Promise<void> {
+    await clientApiClient<void>(
+        INTERNAL_API_ROUTES.technicians.completeService(serviceId),
+        {
+            method: "PATCH",
         },
     );
 }

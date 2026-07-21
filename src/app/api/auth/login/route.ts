@@ -56,7 +56,19 @@ export async function POST(request:Request) {
                 maxAge: AUTH_COOKIE_MAX_AGE_SECONDS,
                 path: AUTH_COOKIE_PATH,
             },
-        );
+        )
+
+        cookieStore.set(
+            serverEnv.auth.userIdCookieName,
+            backendResponse.user.id,
+            {
+                httpOnly: true,
+                secure: serverEnv.app.isProduction,
+                sameSite: "lax",
+                maxAge: AUTH_COOKIE_MAX_AGE_SECONDS,
+                path: AUTH_COOKIE_PATH,
+            },
+        )
 
         const responseBody: LoginRouteResponse = {
             success: true,

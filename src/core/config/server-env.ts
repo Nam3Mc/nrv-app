@@ -7,6 +7,7 @@ const serverEnvSchema = z.object({
 
     AUTH_TOKEN_COOKIE_NAME: z.string().min(1),
     AUTH_ROLE_COOKIE_NAME: z.string().min(1),
+    AUTH_USER_ID_COOKIE_NAME: z.string().min(1),
 
     NODE_ENV: z
         .enum(["development", "production", "test"])
@@ -18,6 +19,7 @@ const parsedServerEnv = serverEnvSchema.safeParse({
 
     AUTH_TOKEN_COOKIE_NAME: process.env.AUTH_TOKEN_COOKIE_NAME,
     AUTH_ROLE_COOKIE_NAME: process.env.AUTH_ROLE_COOKIE_NAME,
+    AUTH_USER_ID_COOKIE_NAME: process.env.AUTH_USER_ID_COOKIE_NAME,
 
     NODE_ENV: process.env.NODE_ENV,
 });
@@ -39,6 +41,7 @@ export const serverEnv = {
     auth: {
         tokenCookieName: parsedServerEnv.data.AUTH_TOKEN_COOKIE_NAME,
         roleCookieName: parsedServerEnv.data.AUTH_ROLE_COOKIE_NAME,
+        userIdCookieName: parsedServerEnv.data.AUTH_USER_ID_COOKIE_NAME
     },
 
     app: {
