@@ -64,17 +64,17 @@ export async function getTechnicianStatistics(): Promise<TechnicianStatistics> {
 export async function startService(
     serviceId: string,
     photos: File[],
-): Promise<TechnicianService> {
+) {
     const formData = new FormData();
 
     photos.forEach((photo) => {
         formData.append("photos", photo);
     });
 
-    return clientApiClient<TechnicianService>(
-        INTERNAL_API_ROUTES.services.startService(serviceId),
+    return clientApiClient(
+        INTERNAL_API_ROUTES.technicians.start(serviceId),
         {
-            method: "PATCH",
+            method: "POST",
             body: formData,
         },
     );
@@ -84,7 +84,7 @@ export async function completeService(
     serviceId: string,
 ): Promise<void> {
     await clientApiClient<void>(
-        INTERNAL_API_ROUTES.technicians.completeService(serviceId),
+        INTERNAL_API_ROUTES.services.complete(serviceId),
         {
             method: "PATCH",
         },

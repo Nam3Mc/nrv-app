@@ -36,6 +36,7 @@ export const INTERNAL_API_ROUTES = {
         update: (technicianId: string) => `/api/technicians/update/${technicianId}`,
         deactivate: (technicianId: string) => `/api/technicians/deactivate/${technicianId}`,
         activate: (technicianId: string) => `/api/technicians/activate/${technicianId}`,
+        start: (serviceId: string) => `api/technicians/services/${serviceId}/start`,
         assignedServices: `/api/technicians/assigned-services`,
         statistics: `/api/technicians/statistics`,
     },
